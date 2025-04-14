@@ -1,0 +1,10 @@
+services:
+  er-alarm-backend:
+    container_name: er-alarm-backend
+    image: ghcr.io/jewon-oh/er-alarm-backend:dev
+    ports:
+      - 8080:8080
+    environment:
+      - TZ=Asia/Seoul
+      - SPRING_PROFILES_ACTIVE=dev
+networks: {}
