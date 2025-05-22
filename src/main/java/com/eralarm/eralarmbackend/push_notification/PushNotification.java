@@ -2,11 +2,13 @@ package com.eralarm.eralarmbackend.push_notification;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Table(name = "push_notification",  schema = "public")
 @Getter
 @Setter
+@EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor
 public class PushNotification {
     @Id

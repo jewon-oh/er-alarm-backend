@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-
 @Configuration
 public class RabbitMqConfig {
     @Value("${spring.rabbitmq.host}")
@@ -28,45 +27,63 @@ public class RabbitMqConfig {
     @Value("${spring.rabbitmq.password}")
     private String rabbitmqPassword;
 
-    @Value("${spring.rabbitmq.template.default-receive-queue}")
-    private String queueName;
+    // FCM 알림용
+    public static final String FCM_EXCHANGE = "fcm.exchange";
+    public static final String FCM_QUEUE = "fcm.queue";
+    public static final String FCM_ROUTING_KEY = "fcm.send";
 
-    @Value("${spring.rabbitmq.template.exchange}")
-    private String exchangeName;
+    // 실적 업데이트용
+    public static final String EARNINGS_EXCHANGE = "earnings.update";
+    public static final String EARNINGS_REQUEST_QUEUE = "earnings.request_queue";
+    public static final String EARNINGS_RESULT_QUEUE = "earnings.result_queue";
+    public static final String EARNINGS_REQUEST_ROUTING_KEY = "earnings.request";
+    public static final String EARNINGS_RESULT_ROUTING_KEY = "earnings.result";
 
-    @Value("${spring.rabbitmq.template.routing-key}")
-    private String routingKey;
-
-    /** 지정된 큐 이름으로 Queue 빈을 생성
-     *
-     * @return Queue 빈 객체
-     */
+    // FCM 설정
     @Bean
-    public Queue queue() {
-        return new Queue(queueName);
+    public Queue fcmQueue() {
+        return new Queue(FCM_QUEUE);
     }
 
-    /** 지정된 exchange 이름으로 DirectExchange 빈을 생성
-     *
-     * @return TopicExchange 빈 객체
-     */
     @Bean
-    public DirectExchange exchange() {
-        return new DirectExchange(exchangeName);
+    public DirectExchange fcmExchange() {
+        return new DirectExchange(FCM_EXCHANGE);
     }
 
-    /**
-     * 주어진 queue와 exchange를 바인딩하고 라우팅 키를 이용하여 Binding 빈을 생성
-     *
-     * @param queue    바인딩할 Queue
-     * @param exchange 바인딩할 TopicExchange
-     * @return Binding 빈 객체
-     */
     @Bean
-    public Binding binding(Queue queue, DirectExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with(routingKey);
+    public Binding fcmBinding() {
+        return BindingBuilder.bind(fcmQueue())
+                .to(fcmExchange())
+                .with(FCM_ROUTING_KEY);
+    }
+    @Bean
+    public Queue earningsRequestQueue() {
+        return new Queue(EARNINGS_REQUEST_QUEUE, true);
     }
 
+    @Bean
+    public Queue earningsResultQueue() {
+        return new Queue(EARNINGS_RESULT_QUEUE, true);
+    }
+
+    @Bean
+    public DirectExchange earningsExchange() {
+        return new DirectExchange(EARNINGS_EXCHANGE);
+    }
+
+    @Bean
+    public Binding earningsReQuestBinding() {
+        return BindingBuilder.bind(earningsRequestQueue())
+                .to(earningsExchange())
+                .with(EARNINGS_REQUEST_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding earningsResultBinding() {
+        return BindingBuilder.bind(earningsResultQueue())
+                .to(earningsExchange())
+                .with(EARNINGS_RESULT_ROUTING_KEY);
+    }
     /**
      * RabbitMQ 연결을 위한 ConnectionFactory 빈을 생성하여 반환
      *
