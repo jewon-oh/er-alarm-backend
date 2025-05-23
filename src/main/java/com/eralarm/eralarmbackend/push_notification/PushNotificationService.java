@@ -32,7 +32,7 @@ public class PushNotificationService {
             System.out.println("✅ 메시지 전송 완료: " + response);
         }catch (FirebaseMessagingException e){
             log.info(e.getMessage());
-            fcmTokenRepository.deleteById(targetToken);
+            fcmTokenRepository.deleteByToken(targetToken);
         }
     }
 }
