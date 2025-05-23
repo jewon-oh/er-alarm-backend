@@ -1,10 +1,29 @@
+x-logging: &default-logging # anchor(&): 'default-logging' for defines a chunk of configuration
+  driver: loki
+  options:
+    loki-url: "http://dockge.lan:3100/loki/api/v1/push"
+    loki-pipeline-stages: |
+      - multiline:
+          firstline: '^\d{4}-\d{2}-\d{2} \d{1,2}:\d{2}:\d{2}'
+          max_wait_time: 3s
+      - regex:
+          expression: '^(?P<timestamp>[\d\-T:.Z]+) trace_id=(?P<trace_id>\w*) span_id=(?P<span_id>\w*) trace_flags=(?P<trace_flags>\w*) (?P<level>[A-Z]+) .*? (?P<message>.*)'
+
 services:
   er-alarm-backend:
     container_name: er-alarm-backend
     image: ghcr.io/jewon-oh/er-alarm-backend:dev
     ports:
-      - 8080:8080
+      - "8080:8080"
+      - "8081:8081"
     environment:
-      - TZ=Asia/Seoul
       - SPRING_PROFILES_ACTIVE=dev
+      - JAVA_TOOL_OPTIONS=-Duser.timezone=Asia/Seoul # TIMEZONE으로 컨테이너 시간 건드리면 시계열 데이터 분석 시 문제 발생 가능
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://dockge.lan:4317 # send traces to Tempo
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc # use gRPC for OTLP
+      - OTEL_SERVICE_NAME=eralarm-backend # service name for Span
+      - OTEL_RESOURCE_ATTRIBUTES=compose_service=eralarm-backend # add custom resource attribute to Span for Grafana Trace to Logs feature
+      - OTEL_METRICS_EXPORTER=none # disable metrics exporter
+      - OTEL_LOGS_EXPORTER=none # disable logs exporter
+    logging: *default-logging # alias(*): refer to 'default-logging' chunk
 networks: {}

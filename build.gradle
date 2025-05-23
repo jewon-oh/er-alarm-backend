@@ -57,6 +57,14 @@ dependencies {
     implementation group: 'org.apache.httpcomponents.core5', name: 'httpcore5', version: '5.3'
     implementation group: 'org.apache.httpcomponents.core5', name: 'httpcore5-h2', version: '5.3'
 
+    // prometheus
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+
+    // prometheus exemplar
+    // https://mvnrepository.com/artifact/io.prometheus/simpleclient_common
+    implementation 'io.prometheus:simpleclient_common:0.16.0'
+
     runtimeOnly 'org.postgresql:postgresql'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
