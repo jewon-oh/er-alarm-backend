@@ -1,6 +1,5 @@
-package com.eralarm.eralarmbackend.earnings;
+package com.eralarm.eralarmbackend.earnings.entity;
 
-import com.eralarm.eralarmbackend.earnings.entity.Earnings;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,7 +21,8 @@ public class SubscribedEarnings implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.REMOVE)
     @JoinColumn(name = "earnings_id", nullable = false)
     private Earnings earnings;
 

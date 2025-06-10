@@ -4,7 +4,7 @@ import com.eralarm.eralarmbackend.earnings.service.EarningsDomainService;
 import com.eralarm.eralarmbackend.earnings.entity.Earnings;
 import com.eralarm.eralarmbackend.fcm_token.FcmTokenRepository;
 import com.eralarm.eralarmbackend.message.MqMessageTypes;
-import com.eralarm.eralarmbackend.earnings.SubscribedEarnings;
+import com.eralarm.eralarmbackend.earnings.entity.SubscribedEarnings;
 import com.eralarm.eralarmbackend.earnings.service.SubscribedEarningsService;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ import static com.eralarm.eralarmbackend.rabbitmq.RabbitMqConfig.FCM_QUEUE;
 @RequiredArgsConstructor
 public class PushNotificationConsumer {
     private final PushNotificationService pushNotificationService;
-    private final FcmTokenRepository fcmTokenRepository;
+//    private final FcmTokenRepository fcmTokenRepository;
     private final EarningsDomainService earningsDomainService;
     private final SubscribedEarningsService subscribedEarningsService;
     /**

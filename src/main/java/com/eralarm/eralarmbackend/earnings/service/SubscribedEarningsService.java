@@ -3,7 +3,7 @@ package com.eralarm.eralarmbackend.earnings.service;
 
 import com.eralarm.eralarmbackend.earnings.dto.SubscriptionRequest;
 import com.eralarm.eralarmbackend.earnings.entity.Earnings;
-import com.eralarm.eralarmbackend.earnings.SubscribedEarnings;
+import com.eralarm.eralarmbackend.earnings.entity.SubscribedEarnings;
 import com.eralarm.eralarmbackend.earnings.repository.SubscribedEarningsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,13 +22,13 @@ public class SubscribedEarningsService {
     @Transactional
     public void unsubscribe(SubscriptionRequest request) {
         toggleSubscription(false,request);
-        log.info("구독 성공");
+        log.info("구독 취소 성공");
     }
 
     @Transactional
     public void subscribe(SubscriptionRequest request) {
         toggleSubscription(true,request);
-        log.info("구독 취소 성공");
+        log.info("구독 성공");
     }
 
     @Transactional
@@ -60,9 +60,9 @@ public class SubscribedEarningsService {
                         }
                 );
     }
-    public List<SubscribedEarnings> getAllSubscribedEarningsByFcmToken(String fcmToken) {
-        return repository.findAllByFcmToken(fcmToken);
-    }
+//    public List<SubscribedEarnings> getAllSubscribedEarningsByFcmToken(String fcmToken) {
+//        return repository.findAllByFcmToken(fcmToken);
+//    }
 
     public List<SubscribedEarnings> getAllSubscribedEarnings(Long earningsId) {
         return repository.findAllByEarnings_Id(earningsId);

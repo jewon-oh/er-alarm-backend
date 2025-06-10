@@ -11,5 +11,5 @@ import java.util.List;
 @Getter
 public class EarningsUpdateRequest {
     private String symbol;
-    private List<EarningsDateDto> earningsDates;
+    private List<EarningsInfoDto> earningsList;
 }

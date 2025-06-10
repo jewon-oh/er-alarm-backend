@@ -13,5 +13,5 @@ public class EarningsTaskReceiveMessage {
     private final EarningsTaskStatus status;
     private final String message;
     private String symbol;
-    private List<EarningsDateDto> earningsDates;
+    private List<EarningsInfoDto> earningsList;
 }

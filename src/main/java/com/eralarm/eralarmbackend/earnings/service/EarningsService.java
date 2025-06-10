@@ -30,19 +30,41 @@ public class EarningsService {
         Page<Earnings> earnings = earningsRepository.findAllBySymbolIgnoreCase(symbol,pageable);
 
         return earnings.map(entity ->
-                new EarningsSingleWithSubResponse(entity.getId(),entity.getSymbol(), entity.getEarningsDate(),false));
+                EarningsSingleWithSubResponse.builder()
+                        .id(entity.getId())
+                        .symbol(entity.getSymbol())
+                        .earningsDate(entity.getEarningsDate())
+                        .epsActual(entity.getEpsActual())
+                        .epsEstimate(entity.getEpsEstimate())
+                        .surprisePct(entity.getSurprisePct())
+                        .subscribed(false)
+                        .build());
     }
 
-    public Page<EarningsSingleWithSubResponse> getEarningsByFcmToken(String fcmToken,String symbol,Pageable pageable) {
-        return earningsRepository.findAllWithSubscriptionBySymbol(fcmToken,symbol,pageable);
+//    public Page<EarningsSingleWithSubResponse> getEarningsByFcmToken(String fcmToken,String symbol,Pageable pageable) {
+//        return earningsRepository.findAllWithSubscriptionBySymbol(fcmToken,symbol,pageable);
+//    }
+    public Page<EarningsSingleWithSubResponse> getEarningsByFcmToken(String fcmToken,String symbol, String date,Pageable pageable) {
+        if(date == null || date.isEmpty()) {
+            return earningsRepository.findAllWithSubscription(fcmToken,symbol,null,null,pageable);
+        }
+
+        // 1) LocalDate 로 파싱
+        LocalDate localDate = LocalDate.parse(date);
+
+        // 2) 해당 날짜의 시작(00:00) / 다음날 시작 시각 생성
+        OffsetDateTime startOfDay = localDate.atStartOfDay().atOffset(ZoneOffset.ofHours(9));
+        OffsetDateTime endOfDay = localDate.atTime(LocalTime.MAX).atOffset(ZoneOffset.ofHours(9));
+
+        return earningsRepository.findAllWithSubscription(fcmToken,null,startOfDay,endOfDay,pageable);
     }
 
     public Page<EarningsSingleResponse> getEarningsToday(Pageable pageable){
         // 오늘 자정
         LocalDate today = LocalDate.now(ZoneId.systemDefault());
-        OffsetDateTime startOfDay = today.atStartOfDay().atOffset(ZoneOffset.UTC);
+        OffsetDateTime startOfDay = today.atStartOfDay().atOffset(ZoneOffset.ofHours(9));
         // 오늘 23:59:59.999
-        OffsetDateTime endOfDay = today.atTime(LocalTime.MAX).atOffset(ZoneOffset.UTC);
+        OffsetDateTime endOfDay = today.atTime(LocalTime.MAX).atOffset(ZoneOffset.ofHours(9));
         Page<Earnings> earnings = earningsRepository.findAllPageByEarningsDateBetween(startOfDay, endOfDay,pageable);
 
         log.info("{}",earnings.getNumberOfElements());
@@ -55,18 +77,21 @@ public class EarningsService {
     public EarningsMultipleResponse updateEarningsDate(EarningsUpdateRequest request) {
         String symbol = request.getSymbol();
 
-        List<OffsetDateTime> dates = request.getEarningsDates().stream()
-                .map(earningsDateDto -> earningsDateDto.getDate().withOffsetSameInstant(ZoneOffset.UTC))
-                .toList();
-
         // 1) 기존 날짜 리스트를 Set으로 변환
         Set<OffsetDateTime> existingSet = new HashSet<>(earningsRepository.findEarningsDatesBySymbolIgnoreCase(request.getSymbol()));
 
         // 2) 한 번의 루프로 신규 날짜만 삽입 대상에 추가
         List<Earnings> toInsert = new ArrayList<>();
-        for (OffsetDateTime date : dates) {
-            if (!existingSet.contains(date)) {
-                toInsert.add(new Earnings(symbol, date));
+        for (EarningsInfoDto dto : request.getEarningsList()) {
+            if (!existingSet.contains(dto.getDate())) {
+                Earnings newEarnings = Earnings.builder()
+                        .symbol(symbol)
+                        .earningsDate(dto.getDate())
+                        .epsEstimate(dto.getEpsEstimate())
+                        .epsActual(dto.getEpsActual())
+                        .surprisePct(dto.getSurprisePct())
+                        .build();
+                toInsert.add(newEarnings);
             }
         }
         if(toInsert.isEmpty()) {
@@ -77,7 +102,6 @@ public class EarningsService {
             return new EarningsMultipleResponse(symbol, existingDates);
         }
 
-        log.info("{}",toInsert.size());
         toInsert.forEach(em::persist);
         em.flush();
         em.clear();

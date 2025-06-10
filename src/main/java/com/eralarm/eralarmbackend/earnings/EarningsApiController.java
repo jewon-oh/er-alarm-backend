@@ -49,7 +49,7 @@ public class EarningsApiController {
      */
     @PostMapping
     public ResponseEntity<ApiResponse<EarningsMultipleResponse>> receiveEarningsResult(@RequestBody EarningsUpdateRequest request) {
-        log.info("📬 실적 결과 수신: {}, {}개 날짜", request.getSymbol(), request.getEarningsDates().size());
+        log.info("📬 실적 결과 수신: {}, {}개", request.getSymbol(), request.getEarningsList().size());
         return ApiResponse.ok(earningsService.updateEarningsDate(request));
     }
 
@@ -59,17 +59,26 @@ public class EarningsApiController {
         return ApiResponse.ok(earningsService.getEarnings(symbol,pageable));
     }
 
+    @GetMapping("")
+    public ResponseEntity<ApiResponse<Page<EarningsSingleWithSubResponse>>> getEarningsWithSub(
+            @RequestHeader(value = "FcmToken", required = false) String fcmToken,
+            @PageableDefault(size = 10) Pageable pageable,
+            @RequestParam String date
+    ) {
+        log.info("{} 실적 조회",date);
+        log.info("FcmToken: {}",fcmToken);
+        return ApiResponse.ok(earningsService.getEarningsByFcmToken(fcmToken,"",date,pageable));
+    }
+
     @GetMapping(path="{symbol}" ,headers = "FcmToken")
-    public ResponseEntity<ApiResponse<Page<EarningsSingleWithSubResponse>>> getEarningsWithSub(@PathVariable String symbol, @RequestHeader HttpHeaders headers, @PageableDefault(size = 10) Pageable pageable) {
+    public ResponseEntity<ApiResponse<Page<EarningsSingleWithSubResponse>>> getEarningsWithSub(
+            @PathVariable String symbol,
+            @RequestHeader HttpHeaders headers,
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
         log.info("{} 실적 조회",symbol);
         String fcmToken = headers.getFirst("FcmToken");
-        log.info("fcm token: {}",fcmToken);
-        if(fcmToken==null) {
-           return ApiResponse.ok(earningsService.getEarnings(symbol,pageable));
-        }else{
-            return ApiResponse.ok(earningsService.getEarningsByFcmToken(fcmToken,symbol,pageable));
-        }
-
+        return ApiResponse.ok(earningsService.getEarningsByFcmToken(fcmToken,symbol,"",pageable));
     }
 
     @GetMapping("/today")

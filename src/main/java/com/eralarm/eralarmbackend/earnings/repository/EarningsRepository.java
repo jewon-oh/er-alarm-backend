@@ -22,19 +22,54 @@ public interface EarningsRepository extends JpaRepository<Earnings, Long> {
 
     Page<Earnings> findAllPageByEarningsDateBetween(OffsetDateTime start, OffsetDateTime end, Pageable pageable);
 
+//    @Query(
+//            value = """
+//                      SELECT new com.eralarm.eralarmbackend.earnings.dto.EarningsSingleWithSubResponse(
+//                        e.id,
+//                        e.symbol,
+//                        e.earningsDate,
+//                        e.epsActual,
+//                        e.epsEstimate,
+//                        e.surprisePct,
+//                        CASE WHEN se.id IS NOT NULL AND se.subscribed=true THEN true ELSE false END
+//                      )
+//                      FROM Earnings e
+//                      LEFT JOIN SubscribedEarnings se
+//                        ON se.earnings = e
+//                       AND se.fcmToken = :fcmToken
+//                      WHERE UPPER(e.symbol) = UPPER(:symbol)
+//                      ORDER BY e.earningsDate DESC
+//                    """,
+//            countQuery = """
+//                      SELECT COUNT(e)
+//                      FROM Earnings e
+//                      WHERE UPPER(e.symbol) = UPPER(:symbol)
+//                    """
+//    )
+//    Page<EarningsSingleWithSubResponse> findAllWithSubscriptionBySymbol(
+//            @Param("fcmToken") String fcmToken,
+//            @Param("symbol") String symbol,
+//            Pageable pageable
+//    );
+
     @Query(
             value = """
                       SELECT new com.eralarm.eralarmbackend.earnings.dto.EarningsSingleWithSubResponse(
                         e.id,
                         e.symbol,
                         e.earningsDate,
+                        e.epsActual,
+                        e.epsEstimate,
+                        e.surprisePct,
                         CASE WHEN se.id IS NOT NULL AND se.subscribed=true THEN true ELSE false END
                       )
                       FROM Earnings e
                       LEFT JOIN SubscribedEarnings se
                         ON se.earnings = e
                        AND se.fcmToken = :fcmToken
-                      WHERE UPPER(e.symbol) = UPPER(:symbol)
+                      WHERE UPPER(e.symbol) = UPPER(COALESCE(:symbol, e.symbol))
+                            AND e.earningsDate >= COALESCE(:dateStart, e.earningsDate)
+                            AND e.earningsDate <= COALESCE(:dateEnd,   e.earningsDate)
                       ORDER BY e.earningsDate DESC
                     """,
             countQuery = """
@@ -43,9 +78,11 @@ public interface EarningsRepository extends JpaRepository<Earnings, Long> {
                       WHERE UPPER(e.symbol) = UPPER(:symbol)
                     """
     )
-    Page<EarningsSingleWithSubResponse> findAllWithSubscriptionBySymbol(
+    Page<EarningsSingleWithSubResponse> findAllWithSubscription(
             @Param("fcmToken") String fcmToken,
             @Param("symbol") String symbol,
+            @Param("dateStart") OffsetDateTime dateStart,
+            @Param("dateEnd") OffsetDateTime dateEnd,
             Pageable pageable
     );
 
