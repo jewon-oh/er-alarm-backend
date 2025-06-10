@@ -34,8 +34,8 @@ public class EarningsTaskConsumer {
             earningsTaskService.update(EarningsTaskMapper.toUpdateDto(message));
 
             if(message.getStatus().equals(EarningsTaskStatus.SUCCESS)) {
-                log.info("{} : {}개 의 실적 발표일", message.getSymbol(),message.getEarningsDates().size());
-                EarningsUpdateRequest request = new EarningsUpdateRequest(message.getSymbol(),message.getEarningsDates());
+                log.info("{} : {}개 의 실적", message.getSymbol(),message.getEarningsList().size());
+                EarningsUpdateRequest request = new EarningsUpdateRequest(message.getSymbol(),message.getEarningsList());
                 earningsService.updateEarningsDate(request);
             }else{
                 log.info("{} : {}", message.getStatus(), message.getMessage());

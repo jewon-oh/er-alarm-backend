@@ -39,13 +39,25 @@ public class Earnings implements Serializable {
     @Column(nullable = false, name = "earnings_date")
     private OffsetDateTime earningsDate;
 
+    @Column(nullable = true, name = "eps_actual")
+    private Double epsActual;
+
+    @Column(nullable = true, name = "eps_estimate")
+    private Double epsEstimate;
+
+    @Column(nullable = true, name = "surprice_pct")
+    private Double surprisePct;
+
     @LastModifiedDate
     @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", name = "last_updated")
     private Timestamp lastUpdated;
 
     @Builder
-    public Earnings(String symbol, OffsetDateTime earningsDate) {
+    public Earnings(String symbol, OffsetDateTime earningsDate, Double epsActual, Double epsEstimate, Double surprisePct) {
         this.symbol = symbol;
         this.earningsDate = earningsDate;
+        this.epsActual = epsActual;
+        this.epsEstimate = epsEstimate;
+        this.surprisePct = surprisePct;
     }
 }

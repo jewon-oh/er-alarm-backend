@@ -1,9 +1,6 @@
 package com.eralarm.eralarmbackend.earnings.util;
 
-import com.eralarm.eralarmbackend.earnings.dto.EarningsTaskReceiveMessage;
-import com.eralarm.eralarmbackend.earnings.dto.EarningsTaskSendMessage;
-import com.eralarm.eralarmbackend.earnings.dto.SaveEarningsTaskDto;
-import com.eralarm.eralarmbackend.earnings.dto.UpdateEarningsTaskDto;
+import com.eralarm.eralarmbackend.earnings.dto.*;
 
 public class EarningsTaskMapper {
     static public SaveEarningsTaskDto toSaveDto(EarningsTaskSendMessage message) {
