@@ -29,7 +29,7 @@ public class PushNotificationService {
                     .build();
 
             response = FirebaseMessaging.getInstance().send(message);
-            System.out.println("✅ 메시지 전송 완료: " + response);
+            log.info("✅ 메시지 전송 완료: " + response);
         }catch (FirebaseMessagingException e){
             log.info(e.getMessage());
             fcmTokenRepository.deleteByToken(targetToken);
