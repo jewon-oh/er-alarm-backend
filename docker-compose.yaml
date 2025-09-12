@@ -19,7 +19,7 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=dev
       - JAVA_TOOL_OPTIONS=-Duser.timezone=Asia/Seoul # TIMEZONE으로 컨테이너 시간 건드리면 시계열 데이터 분석 시 문제 발생 가능
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://dockge.lan:4317 # send traces to Tempo
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://dockge.lan:3200 # send traces to Tempo
       - OTEL_EXPORTER_OTLP_PROTOCOL=grpc # use gRPC for OTLP
       - OTEL_SERVICE_NAME=eralarm-backend # service name for Span
       - OTEL_RESOURCE_ATTRIBUTES=compose_service=eralarm-backend # add custom resource attribute to Span for Grafana Trace to Logs feature
